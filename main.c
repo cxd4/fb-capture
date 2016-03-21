@@ -88,8 +88,10 @@ static int correct_framebuffer(unsigned long screen_ID)
         return 1;
     }
 
-    fseek(input, 0, SEEK_END);
-    file_size  = ftell(input); /* quick hack that assumes POSIX support */
+    file_size = -1;
+    do {
+        ++file_size;
+    } while (fgetc(input) >= 0);
     fseek(input, 0, SEEK_SET);
     if (file_size % 4 != 0) {
         fputs("This does not seem to be a 32-bpp frame buffer dump.\n", stderr);
