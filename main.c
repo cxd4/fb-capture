@@ -91,10 +91,14 @@ static int correct_framebuffer(unsigned long screen_ID)
     fseek(input, 0, SEEK_END);
     file_size  = ftell(input); /* quick hack that assumes POSIX support */
     fseek(input, 0, SEEK_SET);
-    pixels = (unsigned char *)malloc(file_size * 3 / 4);
+    if (file_size % 4 != 0) {
+        fputs("This does not seem to be a 32-bpp frame buffer dump.\n", stderr);
+        return 1;
+    }
 
+    file_size  = (file_size / 4) * 3; /* R8G8B8 is 75% of R8G8B8A8. */
+    pixels = (unsigned char *)malloc(file_size);
     file_size += sizeof(bitmap_header);
-    file_size  = (file_size * 3) / 4; /* R8G8B8 is 75% of R8G8B8A8. */
 
     bitmap_header[2] = (unsigned char)((file_size >>  0) & 0xFF);
     bitmap_header[3] = (unsigned char)((file_size >>  8) & 0xFF);
