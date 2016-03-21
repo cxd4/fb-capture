@@ -26,5 +26,6 @@
 
 static int dump_framebuffer(int device_ID);
 static int correct_framebuffer(unsigned long screen_ID);
+static int fix_framebuffer_to_24b(long file_size, unsigned char * pixels);
 
 #endif
