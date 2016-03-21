@@ -1,3 +1,8 @@
+# Image files
+*.data
+*.raw
+*.bmp
+
 # Object files
 *.o
 *.ko
