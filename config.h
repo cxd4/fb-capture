@@ -20,6 +20,10 @@
 #define HEIGHT          768
 #endif
 
+#if (WIDTH > 0xFFFFu) || (HEIGHT > 0xFFFFu)
+#error Bitmap dimensions exceed the 16-bit storage limit of older BMP files.
+#endif
+
 static int dump_framebuffer(int device_ID);
 static int correct_framebuffer(unsigned long screen_ID);
 
