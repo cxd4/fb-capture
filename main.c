@@ -1,20 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/*
- * Pass -DFILEPATH="/home/myusername/" or the like in GCC flags.
- * Otherwise, the below test has the current directory as the default.
- */
-#ifndef FILEPATH
-#define FILEPATH        "./"
-#endif
-#ifndef WIDTH
-#define WIDTH           1024
-#endif
-#ifndef HEIGHT
-#define HEIGHT          768
-#endif
-
+#include "config.h"
 static const char file_path[] = FILEPATH;
 static const unsigned short data_width = WIDTH;
 static const unsigned short data_height = HEIGHT;
@@ -23,9 +10,6 @@ static const unsigned short data_height = HEIGHT;
 #undef HEIGHT
 
 static unsigned long capture_ID = 0;
-
-static int dump_framebuffer(int device_ID);
-static int correct_framebuffer(unsigned long screen_ID);
 
 int main(int argc, char* argv[])
 {
