@@ -61,6 +61,7 @@ static int correct_framebuffer(unsigned long screen_ID)
     int characters[4];
     FILE * input, * output;
     unsigned char * pixels;
+    unsigned long BMP_size;
     long file_size;
     register long i, j;
     static unsigned char bitmap_header[] = {
@@ -98,14 +99,15 @@ static int correct_framebuffer(unsigned long screen_ID)
         return 1;
     }
 
-    file_size  = (file_size / 4) * 3; /* R8G8B8 is 75% of R8G8B8A8. */
+    file_size = (file_size / 4) * 3; /* R8G8B8 is 75% of R8G8B8A8. */
     pixels = (unsigned char *)malloc(file_size);
     file_size += sizeof(bitmap_header);
 
-    bitmap_header[2] = (unsigned char)((file_size >>  0) & 0xFF);
-    bitmap_header[3] = (unsigned char)((file_size >>  8) & 0xFF);
-    bitmap_header[4] = (unsigned char)((file_size >> 16) & 0xFF);
-    bitmap_header[5] = (unsigned char)((file_size >> 24) & 0xFF);
+    BMP_size = sizeof(bitmap_header) + (3 * data_width * data_height);
+    bitmap_header[2] = (unsigned char)((BMP_size >>  0) & 0xFF);
+    bitmap_header[3] = (unsigned char)((BMP_size >>  8) & 0xFF);
+    bitmap_header[4] = (unsigned char)((BMP_size >> 16) & 0xFF);
+    bitmap_header[5] = (unsigned char)((BMP_size >> 24) & 0xFF);
     if (fwrite(&bitmap_header[0], sizeof(bitmap_header), 1, output) != 1) {
         fputs("Failed to initialize BMP with header.\n", stderr);
         return 1;
@@ -116,11 +118,8 @@ static int correct_framebuffer(unsigned long screen_ID)
     }
 
     for (i = 0; i < file_size; i += 4 - 1) {
-        for (j = 0; j < 4; j++) {
+        for (j = 0; j < 4; j++)
             characters[j] = fgetc(input);
-            if (characters[3] < 0)
-                break;
-        }
         pixels[i + 0] = (unsigned char)characters[0];
         pixels[i + 1] = (unsigned char)characters[1];
         pixels[i + 2] = (unsigned char)characters[2];
@@ -129,14 +128,9 @@ static int correct_framebuffer(unsigned long screen_ID)
 
     fix_framebuffer_to_24b(file_size - sizeof(bitmap_header), pixels);
 
-    for (i = data_height - 1; i >= 0; i--) {
-        size_t elements;
-
-        elements = fwrite(pixels + i*3*data_width, 3*data_width, 1, output);
-        if (elements != 1)
-            fprintf(stderr, "Failed to export scanline %li.\n", i)
-        ;
-    }
+    for (i = data_height - 1; i >= 0; i--)
+        if (fwrite(pixels + i*3*data_width, 3*data_width, 1, output) != 1)
+            fprintf(stderr, "Failed to export scan-line %li.\n", i);
     fclose(output);
     return 0;
 }
