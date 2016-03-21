@@ -101,7 +101,10 @@ static int correct_framebuffer(unsigned long screen_ID)
 
     file_size = (file_size / 4) * 3; /* R8G8B8 is 75% of R8G8B8A8. */
     pixels = (unsigned char *)malloc(file_size);
-    file_size += sizeof(bitmap_header);
+    if (pixels == NULL) {
+        fprintf(stderr, "Unable to allocate %li bytes of pixels.\n", file_size);
+        return 1;
+    }
 
     BMP_size = sizeof(bitmap_header) + (3 * data_width * data_height);
     bitmap_header[2] = (unsigned char)((BMP_size >>  0) & 0xFF);
@@ -110,10 +113,6 @@ static int correct_framebuffer(unsigned long screen_ID)
     bitmap_header[5] = (unsigned char)((BMP_size >> 24) & 0xFF);
     if (fwrite(&bitmap_header[0], sizeof(bitmap_header), 1, output) != 1) {
         fputs("Failed to initialize BMP with header.\n", stderr);
-        return 1;
-    }
-    if (pixels == NULL) {
-        fprintf(stderr, "Unable to allocate %li bytes of pixels.\n", file_size);
         return 1;
     }
 
