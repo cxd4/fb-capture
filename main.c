@@ -140,10 +140,13 @@ static int correct_framebuffer(unsigned long screen_ID)
     }
     fclose(input);
 
-    if (fwrite(pixels, file_size - sizeof(bitmap_header), 1, output) != 1) {
-        fputs("Failed to export BMP pixel array.\n", stderr);
-        fclose(output);
-        return 1;
+    for (i = data_height - 1; i >= 0; i--) {
+        size_t elements;
+
+        elements = fwrite(pixels + i*3*data_width, 3*data_width, 1, output);
+        if (elements != 1)
+            fprintf(stderr, "Failed to export scanline %li.\n", i)
+        ;
     }
     fclose(output);
     return 0;
