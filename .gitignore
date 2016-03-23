@@ -4,6 +4,7 @@ obj/
 *.data
 *.raw
 *.bmp
+*.png
 
 # Object files
 *.o
