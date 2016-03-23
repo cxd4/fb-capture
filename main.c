@@ -21,14 +21,33 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    error_code = dump_framebuffer(0);
-    if (error_code != 0) {
-        fprintf(stderr, "Error %i dumping Linux frame buffer.\n", error_code);
-        return (error_code);
-    }
+    if (argc >= 2) {
+        FILE* input;
+        unsigned char * pixels;
+        register size_t i;
+        const size_t allocated_size = 3 * data_width * data_height;
 
-    puts("Correcting frame buffer byte order to 24-bit R8G8B8...");
-    return correct_framebuffer(capture_ID);
+        pixels = (unsigned char *)malloc(allocated_size);
+        input  = fopen(argv[1], "rb");
+        if (pixels == NULL || input == NULL)
+            return 1;
+        for (i = 0; i < allocated_size; i += 3) {
+            pixels[i + 0] = (unsigned char)fgetc(input);
+            pixels[i + 1] = (unsigned char)fgetc(input);
+            pixels[i + 2] = (unsigned char)fgetc(input);
+            fgetc(input);
+        }
+        fclose(input);
+        error_code = fix_framebuffer_to_24b((long)allocated_size, pixels);
+        free(pixels);
+    } else {
+        error_code = dump_framebuffer(0);
+        if (error_code != 0)
+            return (error_code);
+        puts("Correcting frame buffer byte order to 24-bit R8G8B8...");
+        error_code = correct_framebuffer(capture_ID);
+    }
+    return (error_code);
 }
 
 static int dump_framebuffer(int device_ID)
