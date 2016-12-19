@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/* since we need to delay screen captures sometimes */
+#include <time.h>
+
 #include "config.h"
 static const char file_path[] = FILEPATH;
 static const unsigned short data_width = WIDTH;
@@ -25,7 +28,10 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    if (argc < 2) {
+    delay_capture(
+        (argc < 2) ? 0 : strtol(argv[1], NULL, 0)
+    );
+    if (argc < 3) {
         error_code = dump_framebuffer(0);
         if (error_code != 0)
             return (error_code);
@@ -35,7 +41,7 @@ int main(int argc, char* argv[])
     }
 
     pixels = (unsigned char *)malloc(allocated_size);
-    input  = fopen(argv[1], "rb");
+    input  = fopen(argv[2], "rb");
     if (pixels == NULL || input == NULL)
         return 1;
     for (i = 0; i < allocated_size; i += 3) {
@@ -172,4 +178,18 @@ static int fix_framebuffer_to_24b(long file_size, unsigned char * pixels)
         return 1;
     puts("Wrote 24-bit RGB pixel map to .data file.  Try opening in GIMP.");
     return 0;
+}
+
+static void delay_capture(long int seconds)
+{
+    time_t t1, t2;
+
+    if (seconds <= 0)
+        return;
+    time(&t1);
+    time(&t2);
+
+    while (difftime(t2, t1) < seconds)
+        t2 = time(NULL);
+    return;
 }

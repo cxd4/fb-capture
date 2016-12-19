@@ -28,4 +28,12 @@ static int dump_framebuffer(int device_ID);
 static int correct_framebuffer(unsigned long screen_ID);
 static int fix_framebuffer_to_24b(long file_size, unsigned char * pixels);
 
+/*
+ * Since the capture is of an X-free environment, people generally need to
+ * Ctrl+Alt+... to some other screen (that IS running X) to get the old one.
+ *
+ * This allows the user time to switch between TTYs/VTs before capturing.
+ */
+static void delay_capture(long int seconds);
+
 #endif
