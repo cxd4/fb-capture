@@ -4,7 +4,7 @@ obj="$src/obj"
 mkdir -p $obj
 
 C_FLAGS="\
-    -DWIDTH=1728 -DHEIGHT=1050 \
+    -DWIDTH=1024 -DHEIGHT=768 \
     -Os \
     -march=native \
     -ansi \
