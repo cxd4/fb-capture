@@ -82,7 +82,7 @@ static int dump_framebuffer(int device_ID)
 
 static int correct_framebuffer(unsigned long screen_ID)
 {
-    char location_to_pixels[sizeof(file_path)];
+    char location_to_pixels[sizeof(file_path) + sizeof("00000000.raw")];
     int characters[4];
     FILE * input, * output;
     unsigned char * pixels;
@@ -103,9 +103,17 @@ static int correct_framebuffer(unsigned long screen_ID)
         24, (0 >> 8), /* R8G8B8 24 bits per pixel */
     };
 
-    sprintf(&location_to_pixels[0], "%s%08lX.raw", &file_path[0], screen_ID);
+    sprintf(
+        &location_to_pixels[0], "%s%08lX.raw",
+        &file_path[0],
+        screen_ID & 0xFFFFFFFFul
+    );
     input  = fopen(&location_to_pixels[0], "rb");
-    sprintf(&location_to_pixels[0], "%s%08lX.bmp", &file_path[0], screen_ID);
+    sprintf(
+        &location_to_pixels[0], "%s%08lX.bmp",
+        &file_path[0],
+        screen_ID & 0xFFFFFFFFul
+    );
     output = fopen(&location_to_pixels[0], "wb");
     if (input == NULL || output == NULL) {
         fprintf(stderr,
@@ -161,11 +169,15 @@ static int correct_framebuffer(unsigned long screen_ID)
 
 static int fix_framebuffer_to_24b(long file_size, unsigned char * pixels)
 {
-    char location_to_pixels[sizeof(file_path)];
+    char location_to_pixels[sizeof(file_path) + sizeof("00000000.data")];
     FILE* output;
     register long i, j;
 
-    sprintf(&location_to_pixels[0], "%s%08lX.data", &file_path[0], capture_ID);
+    sprintf(
+        &location_to_pixels[0], "%s%08lX.data",
+        &file_path[0],
+        capture_ID & 0xFFFFFFFFul
+    );
     output = fopen(&location_to_pixels[0], "wb");
     if (output == NULL)
         return 1;
